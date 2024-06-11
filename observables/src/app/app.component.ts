@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Subscription, from, fromEvent, map, of, tap } from 'rxjs';
+import { Subscription, filter, from, fromEvent, map, of, take, tap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -69,11 +69,15 @@ export class AppComponent implements OnInit, OnDestroy{
     ]);
     
     this.subApples = apples$.pipe(
-      map(
-        item => item.products.map( it => ({...it, color:"red"}) )
-      ),
-      tap( item => console.log(`Item: ${item}`))
-    ).subscribe();
+        take( 1 ),
+        map(
+            item => item.products.map( it => ({...it, color:"red"}) )
+        ),
+        filter( it => it.length > 3),
+        tap( it => {
+            it.map( item => console.log(`Item: ${item.name} - ${item.color}`))
+        } )
+      ).subscribe();
 
     // this.subInputDetector = fromEvent(this.nameInput, 'input').subscribe({
     //   next: ev => console.log(`Your typed: ${ev.target}`),
